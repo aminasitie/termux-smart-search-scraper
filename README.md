@@ -1,10 +1,10 @@
 # 🔍 Termux Smart Search Scraper
 
-Python Web Scraper yang dioptimalkan untuk Termux Android. Mencari informasi berdasarkan kata kunci menggunakan Google Search dan mengekstrak data dari hasil pencarian.
+Python Web Scraper yang dioptimalkan untuk Termux Android. Mencari informasi berdasarkan kata kunci menggunakan DuckDuckGo Search dan mengekstrak data dari hasil pencarian.
 
 ## ✨ Fitur
 
-- **Pencarian Berbasis Kata Kunci**: Cari informasi dengan kata kunci apapun
+- **Pencarian Berbasis Kata Kunci**: Cari informasi dengan kata kunci apapun menggunakan DuckDuckGo
 - **Ekstraksi Konten Otomatis**: Mengambil judul, link, dan ringkasan konten
 - **Output Bersih**: Simpan hasil dalam format TXT atau CSV
 - **Optimasi Termux**: Efisien dalam penggunaan RAM dan storage
@@ -55,6 +55,28 @@ Hasil disimpan di folder `hasil_search/` dengan format:
 - TXT: `hasil_search/kata_kunci_tanggal.txt`
 - CSV: `hasil_search/kata_kunci_tanggal.csv`
 
+## 📊 Contoh Output
+
+**Format TXT:**
+```
+Hasil Pencarian: harga laptop bekas
+Tanggal: 2026-03-30 12:00:00
+Jumlah Hasil: 10
+================================================================================
+
+[1] Laptop Bekas Murah - Toko Online
+   Link: https://contoh.com/laptop-bekas
+   Status: success
+   Ringkasan: Jual laptop bekas dengan harga terjangkau...
+--------------------------------------------------------------------------------
+```
+
+**Format CSV:**
+```csv
+No,Judul,URL,Status,Ringkasan
+1,Laptop Bekas Murah,https://contoh.com/laptop-bekas,success,Jual laptop bekas...
+```
+
 ## 🔧 Troubleshooting
 
 ### Jika `install.sh` Gagal
@@ -69,10 +91,10 @@ pkg install python python-pip git libxml2 libxslt -y
 termux-setup-storage
 
 # Instal paket Python
-pip install googlesearch-python httpx beautifulsoup4 lxml
+pip install duckduckgo-search httpx beautifulsoup4 lxml
 
 # Atau gunakan flag ini jika error PEP 668
-pip install --break-system-packages googlesearch-python httpx beautifulsoup4 lxml
+pip install --break-system-packages duckduckgo-search httpx beautifulsoup4 lxml
 ```
 
 ### Masalah Umum
@@ -98,30 +120,8 @@ pip install --break-system-packages googlesearch-python httpx beautifulsoup4 lxm
 
 5. **Module not found error**
    ```bash
-   pip install --break-system-packages googlesearch-python httpx beautifulsoup4 lxml
+   pip install --break-system-packages duckduckgo-search httpx beautifulsoup4 lxml
    ```
-
-## 📊 Contoh Output
-
-**Format TXT:**
-```
-Hasil Pencarian: harga laptop bekas
-Tanggal: 2026-03-30 12:00:00
-Jumlah Hasil: 10
-================================================================================
-
-[1] Laptop Bekas Murah - Toko Online
-   Link: https://contoh.com/laptop-bekas
-   Status: success
-   Ringkasan: Jual laptop bekas dengan harga terjangkau...
---------------------------------------------------------------------------------
-```
-
-**Format CSV:**
-```csv
-No,Judul,URL,Status,Ringkasan
-1,Laptop Bekas Murah,https://contoh.com/laptop-bekas,success,Jual laptop bekas...
-```
 
 ## 📁 Struktur Direktori
 
@@ -145,7 +145,7 @@ termux-smart-search-scraper/
 
 | Library | Versi | Fungsi |
 |---------|-------|--------|
-| googlesearch-python | 1.2.1 | Pencarian Google |
+| duckduckgo-search | 8.1.1 | Pencarian DuckDuckGo |
 | httpx | 0.27.0 | HTTP client |
 | beautifulsoup4 | 4.12.3 | Parsing HTML |
 | lxml | 5.1.0 | Parser HTML cepat |
