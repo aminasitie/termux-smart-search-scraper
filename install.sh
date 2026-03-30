@@ -69,7 +69,7 @@ print_info "[4/5] Menginstal paket Python..."
 # Detect pip method
 if pip --version &> /dev/null; then
     # Check Python version for PEP 668 compatibility
-    PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
     print_info "Python version: $PYTHON_VERSION"
     
     # Try different installation methods
@@ -108,8 +108,8 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 
-# Check required packages
-for pkg_name in httpx bs4 googlesearch; do
+# Check required packages (new packages)
+for pkg_name in httpx bs4 duckduckgo_search; do
     if python3 -c "import $pkg_name" 2>/dev/null || python -c "import $pkg_name" 2>/dev/null; then
         print_status "$pkg_name: OK"
     else
