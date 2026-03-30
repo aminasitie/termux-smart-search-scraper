@@ -2,7 +2,7 @@
 """
 Termux Smart Search Scraper
 Python Web Scraper yang dioptimalkan untuk Termux
-Cari dan scrape data dari Google dengan mudah
+Cari dan scrape data dari web dengan mudah
 """
 
 import os
@@ -23,10 +23,10 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # Try to import required libraries with error handling
 try:
-    from googlesearch import search
+    from duckduckgo_search import DDGS
 except ImportError:
-    print("❌ Error: googlesearch-python tidak terinstal.")
-    print("   Jalankan: pip install googlesearch-python")
+    print("❌ Error: duckduckgo-search tidak terinstal.")
+    print("   Jalankan: pip install duckduckgo-search")
     sys.exit(1)
 
 try:
@@ -103,22 +103,28 @@ class SmartSearchScraper:
             "format": output_format
         }
     
-    def search_google(self, keyword: str, num_results: int) -> List[str]:
-        """Melakukan pencarian Google dan mengembalikan URL"""
+    def search_duckduckgo(self, keyword: str, num_results: int) -> List[Dict]:
+        """Melakukan pencarian DuckDuckGo dan mengembalikan URL"""
         print(f"\n🔍 Mencari: '{keyword}'...")
         
-        urls = []
+        results = []
         try:
-            for url in search(keyword, num_results=num_results, lang="id"):
-                urls.append(url)
-                print(f"   ✓ Ditemukan: {len(urls)}/{num_results}")
+            with DDGS() as ddgs:
+                search_results = list(ddgs.text(keyword, max_results=num_results))
+                for i, result in enumerate(search_results):
+                    results.append({
+                        'url': result.get('href', ''),
+                        'title': result.get('title', 'Tanpa Judul'),
+                        'snippet': result.get('body', '')
+                    })
+                    print(f"   ✓ Ditemukan: {len(results)}/{num_results}")
         except Exception as e:
-            print(f"\n⚠️  Warning: Pencarian terhenti setelah {len(urls)} hasil")
+            print(f"\n⚠️  Warning: Pencarian terhenti setelah {len(results)} hasil")
             print(f"   Error: {str(e)[:100]}...")
         
-        return urls
+        return results
     
-    def extract_content(self, url: str) -> Dict:
+    def extract_content(self, url: str, snippet: str = '') -> Dict:
         """Mengekstrak konten dari URL"""
         try:
             headers = {
@@ -164,13 +170,17 @@ class SmartSearchScraper:
                 
                 content = ' '.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
                 
+                # Jika konten kosong, gunakan snippet dari search
+                if not content and snippet:
+                    content = snippet
+                
                 # Batasi panjang konten untuk menghemat RAM
                 if len(content) > 500:
                     content = content[:500] + "..."
                 
                 return {
                     "url": url,
-                    "title": title[:200],  # Batasi panjang judul
+                    "title": title[:200],
                     "content": content,
                     "status": "success"
                 }
@@ -179,21 +189,21 @@ class SmartSearchScraper:
             return {
                 "url": url,
                 "title": "Timeout",
-                "content": "Website terlalu lama merespons (>15 detik)",
+                "content": snippet if snippet else "Website terlalu lama merespons (>15 detik)",
                 "status": "timeout"
             }
         except httpx.HTTPStatusError as e:
             return {
                 "url": url,
                 "title": f"HTTP Error {e.response.status_code}",
-                "content": f"Website memblokir akses atau tidak tersedia",
+                "content": snippet if snippet else f"Website memblokir akses atau tidak tersedia",
                 "status": "http_error"
             }
         except Exception as e:
             return {
                 "url": url,
                 "title": "Error",
-                "content": f"Gagal mengakses: {str(e)[:100]}",
+                "content": snippet if snippet else f"Gagal mengakses: {str(e)[:100]}",
                 "status": "error"
             }
     
@@ -232,7 +242,7 @@ class SmartSearchScraper:
                     result['title'],
                     result['url'],
                     result['status'],
-                    result['content'][:500]  # Batasi panjang untuk CSV
+                    result['content'][:500]
                 ])
         
         return filename
@@ -246,13 +256,13 @@ class SmartSearchScraper:
         successful = sum(1 for r in results if r['status'] == 'success')
         print(f"\n✅ Berhasil: {successful}/{len(results)}")
         
-        for i, result in enumerate(results[:5], 1):  # Tampilkan 5 hasil pertama
+        for i, result in enumerate(results[:5], 1):
             print(f"\n[{i}] {result['title']}")
             print(f"    📍 {result['url'][:60]}...")
             if result['status'] == 'success':
                 print(f"    📄 {result['content'][:100]}...")
             else:
-                print(f"    ⚠️  {result['content']}")
+                print(f"    ⚠️  {result['content'][:100]}")
         
         if len(results) > 5:
             print(f"\n    ... dan {len(results)-5} hasil lainnya")
@@ -272,20 +282,20 @@ class SmartSearchScraper:
         print(f"   Format output: {config['format'].upper()}")
         
         # Lakukan pencarian
-        urls = self.search_google(config['keyword'], config['num_results'])
+        search_results = self.search_duckduckgo(config['keyword'], config['num_results'])
         
-        if not urls:
+        if not search_results:
             print("\n❌ Tidak ada hasil ditemukan. Coba kata kunci lain.")
             return
         
-        print(f"\n📥 Mengambil konten dari {len(urls)} URL...")
+        print(f"\n📥 Mengambil konten dari {len(search_results)} URL...")
         
         # Scrape konten dari setiap URL
         results = []
-        for i, url in enumerate(urls, 1):
-            print(f"\n   [{i}/{len(urls)}] Memproses: {url[:50]}...")
+        for i, search_result in enumerate(search_results, 1):
+            print(f"\n   [{i}/{len(search_results)}] Memproses: {search_result['url'][:50]}...")
             
-            result = self.extract_content(url)
+            result = self.extract_content(search_result['url'], search_result.get('snippet', ''))
             results.append(result)
             
             # Tampilkan status
@@ -315,7 +325,7 @@ class SmartSearchScraper:
         print("📈 RINGKASAN")
         print("=" * 60)
         print(f"🔍 Kata Kunci: {config['keyword']}")
-        print(f"📊 Total URL: {len(urls)}")
+        print(f"📊 Total URL: {len(search_results)}")
         print(f"✅ Berhasil scrape: {sum(1 for r in results if r['status'] == 'success')}")
         print(f"⚠️  Gagal scrape: {sum(1 for r in results if r['status'] != 'success')}")
         print(f"📁 File output: {filename}")
