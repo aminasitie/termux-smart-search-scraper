@@ -13,59 +13,96 @@ Python Web Scraper yang dioptimalkan untuk Termux Android. Mencari informasi ber
 
 ## 📋 Prasyarat
 
-- Android dengan Termux terinstal
+- Android dengan Termux terinstal (download dari [F-Droid](https://f-droid.org/packages/com.termux/) atau Play Store)
 - Koneksi internet
 - Minimal 100MB ruang penyimpanan bebas
 
-## 🚀 Instalasi Cepat
+## 🚀 Instalasi Cepat (5 Langkah)
 
 Ikuti langkah-langkah berikut **secara berurutan**:
 
-### Langkah 1: Instal Git
 ```bash
+# Langkah 1: Instal Git
 pkg install git -y
-```
 
-### Langkah 2: Clone Repositori
-```bash
+# Langkah 2: Clone Repositori
 git clone https://github.com/aminasitie/termux-smart-search-scraper.git
-```
 
-### Langkah 3: Masuk ke Direktori
-```bash
+# Langkah 3: Masuk ke Direktori
 cd termux-smart-search-scraper
-```
 
-### Langkah 4: Jalankan Instalasi Otomatis
-```bash
+# Langkah 4: Jalankan Instalasi Otomatis
 bash install.sh
+
+# Langkah 5: Jalankan Scraper
+python main.py
 ```
 
-### Langkah 5: Jalankan Scraper
+## 📖 Cara Penggunaan
+
+### Menjalankan Program
 ```bash
 python main.py
 ```
 
-## 📖 Panduan Penggunaan
+### Input yang Diperlukan
+1. **Kata kunci pencarian**: Contoh: "harga laptop bekas"
+2. **Jumlah hasil**: Berapa banyak hasil yang ingin di-scrape (1-50)
+3. **Format output**: Pilih TXT atau CSV
 
-### 1. Menjalankan Program
-Setelah instalasi, jalankan dengan:
-```bash
-python main.py
-```
-
-### 2. Memasukkan Kata Kunci
-Program akan meminta input:
-- **Kata kunci pencarian**: Contoh: "harga laptop bekas"
-- **Jumlah hasil**: Berapa banyak hasil yang ingin di-scrape (1-50)
-- **Format output**: Pilih TXT atau CSV
-
-### 3. Melihat Hasil
-Hasil akan disimpan di folder `hasil_search/` dengan format:
+### Lokasi Hasil
+Hasil disimpan di folder `hasil_search/` dengan format:
 - TXT: `hasil_search/kata_kunci_tanggal.txt`
 - CSV: `hasil_search/kata_kunci_tanggal.csv`
 
-### 4. Contoh Output
+## 🔧 Troubleshooting
+
+### Jika `install.sh` Gagal
+
+Jika instalasi otomatis gagal, instal manual:
+
+```bash
+# Instal dependensi sistem
+pkg install python python-pip git libxml2 libxslt -y
+
+# Setup storage (opsional)
+termux-setup-storage
+
+# Instal paket Python
+pip install googlesearch-python httpx beautifulsoup4 lxml
+
+# Atau gunakan flag ini jika error PEP 668
+pip install --break-system-packages googlesearch-python httpx beautifulsoup4 lxml
+```
+
+### Masalah Umum
+
+1. **"externally-managed-environment"**
+   ```bash
+   pip install --break-system-packages -r requirements.txt
+   ```
+
+2. **"command not found: pkg"**
+   - Pastikan menggunakan Termux dari F-Droid atau Play Store
+
+3. **"pip not found"**
+   ```bash
+   pkg install python-pip -y
+   ```
+
+4. **"Permission denied"**
+   ```bash
+   chmod +x install.sh
+   bash install.sh
+   ```
+
+5. **Module not found error**
+   ```bash
+   pip install --break-system-packages googlesearch-python httpx beautifulsoup4 lxml
+   ```
+
+## 📊 Contoh Output
+
 **Format TXT:**
 ```
 Hasil Pencarian: harga laptop bekas
@@ -86,91 +123,48 @@ No,Judul,URL,Status,Ringkasan
 1,Laptop Bekas Murah,https://contoh.com/laptop-bekas,success,Jual laptop bekas...
 ```
 
-## 🔧 Struktur Direktori
+## 📁 Struktur Direktori
 
 ```
 termux-smart-search-scraper/
 ├── install.sh          # Skrip instalasi otomatis
 ├── requirements.txt    # Daftar library Python
-├── main.py            # Skrip utama scraper
-├── README.md          # Dokumentasi ini
-└── hasil_search/      # Folder hasil (otomatis dibuat)
+├── main.py             # Skrip utama scraper
+├── README.md           # Dokumentasi ini
+└── hasil_search/       # Folder hasil (otomatis dibuat)
 ```
 
-## 🐛 Troubleshooting
+## ⚡ Tips Optimasi Termux
 
-### Masalah Umum:
-
-1. **"command not found: pkg"**
-   - Pastikan Anda menggunakan Termux dari F-Droid atau Play Store
-   - Bukan Termux dari Google Play (sudah tidak diupdate)
-
-2. **"pip not found"**
-   ```bash
-   pkg install python-pip -y
-   ```
-
-3. **"Permission denied" saat menjalankan install.sh**
-   ```bash
-   chmod +x install.sh
-   bash install.sh
-   ```
-
-4. **Program berhenti di tengah jalan**
-   - Beberapa website mungkin memblokir akses
-   - Program akan melanjutkan ke URL berikutnya
-   - Cek file hasil untuk melihat URL yang berhasil
-
-5. **Tidak ada hasil yang ditemukan**
-   - Coba kata kunci yang lebih spesifik
-   - Periksa koneksi internet
-   - Coba kurangi jumlah hasil
-
-## 📊 Contoh Penggunaan
-
-```bash
-# Contoh 1: Cari harga laptop
-python main.py
-# Input: "harga laptop bekas", 10, TXT
-
-# Contoh 2: Cari resep masakan
-python main.py  
-# Input: "resep nasi goreng", 5, CSV
-
-# Contoh 3: Cari berita terkini
-python main.py
-# Input: "berita teknologi terbaru", 15, TXT
-```
-
-## ⚡ Tips Optimasi untuk Termux
-
-1. **Hemat RAM**: Program dibatasi maksimal 50 hasil untuk menghindari memory overflow
-2. **Hemat Storage**: Output dibatasi panjang konten untuk menghemat ruang
+1. **Hemat RAM**: Maksimal 50 hasil untuk menghindari memory overflow
+2. **Hemat Storage**: Konten dibatasi 500 karakter per hasil
 3. **Hemat Baterai**: Delay antar request mencegah CPU spike
-4. **Storage Android**: Hasil disimpan di internal storage melalui termux-setup-storage
+4. **Storage Android**: Hasil di internal storage via termux-setup-storage
 
-## 🛡️ Legal Disclaimer
+## 📚 Library yang Digunakan
 
-- Gunakan scraper ini dengan bijak dan bertanggung jawab
-- Hormati robots.txt dan terms of service setiap website
-- Jangan gunakan untuk scraping massal yang dapat membebani server
-- Hasil scraping hanya untuk penggunaan pribadi
+| Library | Versi | Fungsi |
+|---------|-------|--------|
+| googlesearch-python | 1.2.1 | Pencarian Google |
+| httpx | 0.27.0 | HTTP client |
+| beautifulsoup4 | 4.12.3 | Parsing HTML |
+| lxml | 5.1.0 | Parser HTML cepat |
 
-## 📝 Library yang Digunakan
+## ⚠️ Disclaimer
 
-- **googlesearch-python**: Untuk pencarian Google
-- **httpx**: HTTP client modern (async-ready)
-- **beautifulsoup4**: Parsing HTML
-- **lxml**: Parser HTML cepat
+- Gunakan dengan bijak dan bertanggung jawab
+- Hormati robots.txt dan ToS setiap website
+- Jangan untuk scraping massal yang membebani server
+- Hanya untuk penggunaan pribadi
 
-## 📞 Kontak & Dukungan
+## 📞 Kontak
 
 - **GitHub Issues**: https://github.com/aminasitie/termux-smart-search-scraper/issues
 - **Email**: aminasitie@gmail.com
 
 ## 📄 Lisensi
 
-MIT License - Bebas digunakan dan dimodifikasi.
+MIT License
 
 ---
 
